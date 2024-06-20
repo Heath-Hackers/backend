@@ -362,6 +362,73 @@ export interface AdminTransferTokenPermission extends Schema.CollectionType {
   };
 }
 
+export interface ApiExamExam extends Schema.CollectionType {
+  collectionName: 'exams';
+  info: {
+    singularName: 'exam';
+    pluralName: 'exams';
+    displayName: 'Exam';
+    description: '';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    status: Attribute.Enumeration<
+      ['progress', 'complete', 'finished', 'cancelled']
+    >;
+    description: Attribute.Text;
+    finalization: Attribute.Text;
+    users_permissions_users: Attribute.Relation<
+      'api::exam.exam',
+      'manyToMany',
+      'plugin::users-permissions.user'
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<'api::exam.exam', 'oneToOne', 'admin::user'> &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<'api::exam.exam', 'oneToOne', 'admin::user'> &
+      Attribute.Private;
+  };
+}
+
+export interface ApiRequestRequest extends Schema.CollectionType {
+  collectionName: 'requests';
+  info: {
+    singularName: 'request';
+    pluralName: 'requests';
+    displayName: 'request';
+    description: '';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    users_permissions_users: Attribute.Relation<
+      'api::request.request',
+      'oneToMany',
+      'plugin::users-permissions.user'
+    >;
+    status: Attribute.Enumeration<['immediate', 'medium', 'light']>;
+    description: Attribute.String;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::request.request',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::request.request',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 export interface PluginUploadFile extends Schema.CollectionType {
   collectionName: 'files';
   info: {
@@ -724,7 +791,21 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       'plugin::users-permissions.role'
     >;
     type: Attribute.Enumeration<['admin', 'doctor', 'client', 'other']>;
-    documents: Attribute.Media<'images' | 'files' | 'videos' | 'audios', true>;
+    specialization: Attribute.String;
+    document: Attribute.String;
+    files: Attribute.Media<'images' | 'files' | 'videos' | 'audios', true>;
+    request: Attribute.Relation<
+      'plugin::users-permissions.user',
+      'manyToOne',
+      'api::request.request'
+    >;
+    fullname: Attribute.String;
+    exams: Attribute.Relation<
+      'plugin::users-permissions.user',
+      'manyToMany',
+      'api::exam.exam'
+    >;
+    image: Attribute.Media<'images' | 'files' | 'videos' | 'audios'>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -799,6 +880,8 @@ declare module '@strapi/types' {
       'admin::api-token-permission': AdminApiTokenPermission;
       'admin::transfer-token': AdminTransferToken;
       'admin::transfer-token-permission': AdminTransferTokenPermission;
+      'api::exam.exam': ApiExamExam;
+      'api::request.request': ApiRequestRequest;
       'plugin::upload.file': PluginUploadFile;
       'plugin::upload.folder': PluginUploadFolder;
       'plugin::content-releases.release': PluginContentReleasesRelease;
